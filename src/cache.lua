@@ -34,6 +34,16 @@ function cache.new()
     function self.flush_expired()
     end
 
+    function self.get_all()
+        local items = {}
+        
+        for _, v in pairs(self.data) do
+            items.insert(v)
+        end
+        
+        return items
+    end
+
     return self
 
 end

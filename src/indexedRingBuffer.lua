@@ -17,24 +17,24 @@ function indexedRingBuffer.new( params )
     end
 
     local self = {
-                    cache = shared.new("ringBuffer"),
-                    cacheIndex = shared.new("ringBufferIndex"),
-                    sizeStats = shared.new("sizeStats"),
-                    autoResize = params.autoResize or false,
-                    desiredEjectMins = params.desiredEjectMins or 15,
-                    autoMinSize = params.autoMinSize or 10000,
-                    autoMaxSize = params.autoMaxSize or 10000000,
-                    monitorPeriodMins = params.monitorPeriodMins or 10,
-                    triggerAdjustPercent = params.triggerAdjustPercent or 20,
-                    maxAdjustPercentUp = params.maxAdjustPercent or 25,
-                    maxAdjustPercentDown = params.maxAdjustPercent or 10,
-                    paramList = params.paramList,
-                    storageMap = {},
-                    storageInitString = '{}',
-                    ngxEjectUpstream = params.ngxEjectUpstream or "/ejectItem_upstream",
-                    drainParallelItems = params.drainParallelItems or 100,
-                    ejectFunction = params.ejectFunction
-                }
+        cache = shared.new("ringBuffer"),
+        cacheIndex = shared.new("ringBufferIndex"),
+        sizeStats = shared.new("sizeStats"),
+        autoResize = params.autoResize or false,
+        desiredEjectMins = params.desiredEjectMins or 15,
+        autoMinSize = params.autoMinSize or 10000,
+        autoMaxSize = params.autoMaxSize or 10000000,
+        monitorPeriodMins = params.monitorPeriodMins or 10,
+        triggerAdjustPercent = params.triggerAdjustPercent or 20,
+        maxAdjustPercentUp = params.maxAdjustPercent or 25,
+        maxAdjustPercentDown = params.maxAdjustPercent or 10,
+        paramList = params.paramList,
+        storageMap = {},
+        storageInitString = '{}',
+        ngxEjectUpstream = params.ngxEjectUpstream or "/ejectItem_upstream",
+        drainParallelItems = params.drainParallelItems or 100,
+        ejectFunction = params.ejectFunction
+    }
 
     function self.drain()
         -- only one drain can occur at a given time
@@ -326,6 +326,10 @@ function indexedRingBuffer.new( params )
         end
 
         self.sizeStats:incr( "totalReqCount", 1 )
+    end
+
+    function self.get_all_items()
+        return self.cache:get_all()
     end
 
     -- initialize size
