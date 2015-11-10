@@ -1,6 +1,6 @@
 local cache = {_TYPE='module', _NAME='cache' }
 
-function cache.new( size, secs )
+function cache.new()
     local self = {
                     data = {}
                 }

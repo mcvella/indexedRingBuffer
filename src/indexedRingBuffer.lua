@@ -17,9 +17,9 @@ function indexedRingBuffer.new( params )
     end
 
     local self = {
-                    cache = shared("ringBuffer"),
-                    cacheIndex = shared("ringBufferIndex"),
-                    sizeStats = shared("sizeStats"),
+                    cache = shared.new("ringBuffer"),
+                    cacheIndex = shared.new("ringBufferIndex"),
+                    sizeStats = shared.new("sizeStats"),
                     autoResize = params.autoResize or false,
                     desiredEjectMins = params.desiredEjectMins or 15,
                     autoMinSize = params.autoMinSize or 10000,
