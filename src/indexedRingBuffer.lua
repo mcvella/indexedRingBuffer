@@ -330,6 +330,10 @@ function indexedRingBuffer.new( params )
 
     function self.get(id)
         local offset = self.cacheIndex:get(id)
+        if not offset then
+            return nil
+        end
+        
         local docWithKey = self.cache:get(offset)
         if docWithKey then
             return splitString(docWithKey, ID_SEP)[2]
