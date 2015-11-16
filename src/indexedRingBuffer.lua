@@ -328,8 +328,12 @@ function indexedRingBuffer.new( params )
         self.sizeStats:incr( "totalReqCount", 1 )
     end
 
-    function self.get_all_items()
-        return self.cache:get_all()
+    function self.get(id)
+        local offset = self.cacheIndex:get(id)
+        local docWithKey = self.cache:get(offset)
+        if docWithKey then
+            return splitString(docWithKey, ID_SEP)[2]
+        end
     end
 
     -- initialize size

@@ -45,16 +45,6 @@ function dictCache.new( dictName, secs )
         cache:flush_expired()
     end
 
-    function self.get_all()
-        local items = {}
-        
-        for k in self.cache:get_keys() do
-            items.insert(cache:get(k))
-        end
-        
-        return items
-    end
-
     return self
 
 end
