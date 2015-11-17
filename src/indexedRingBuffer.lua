@@ -75,7 +75,7 @@ function indexedRingBuffer.new( params )
     end
 
     function self.ejectItem( itemPos, doDel )
-        local item = self.cache:get(itemPos)
+        local item = self.makeReadableParams(self.cache:get(itemPos))
         local splitVal = splitString(item, ID_SEP)
         if self.ejectFunction then
            self.ejectFunction(splitVal[1], splitVal[2], true)
@@ -189,7 +189,7 @@ function indexedRingBuffer.new( params )
             self.cacheIndex:set( id, currentItemPos )
         end
 
-        --ngx.log( ngx.DEBUG, "Will set " .. id .. " at " .. currentItemPos )
+        ngx.log( ngx.DEBUG, "Will set " .. id .. " at " .. currentItemPos )
 
         local newVal = self.mergeValWithParams(id, currentVal, params)
         local success, err = self.cache:set( currentItemPos, newVal )
@@ -221,6 +221,16 @@ function indexedRingBuffer.new( params )
             end
          end
         return id .. ID_SEP .. cjson.encode( current )
+    end
+
+    function self.makeReadableParams(params)
+        local t = {}
+        for name, val in pairs(self.storageMap) do
+            if params[val] then
+                t[name] = params[val]
+            end 
+        end
+        return t
     end
 
     function self.initStorage( paramList )
@@ -336,7 +346,8 @@ function indexedRingBuffer.new( params )
         
         local docWithKey = self.cache:get(offset)
         if docWithKey then
-            return splitString(docWithKey, ID_SEP)[2]
+            local doc = cjson.decode(splitString(docWithKey, ID_SEP)[2])
+            return cjson.encode(self.makeReadableParams(doc))
         end
     end
 
