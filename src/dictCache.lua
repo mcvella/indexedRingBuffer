@@ -9,23 +9,23 @@ function dictCache.new( dictName, secs )
 
     local cache = ngx.shared[self.dictName];
 
-    function self.set( key, value )
+    function self:set( key, value )
         cache:set( key, value, self.maxSecs )
     end
 
-    function self.add( key, value )
+    function self:add( key, value )
         cache:add( key, value, self.maxSecs )
     end
 
-    function self.get( key )
+    function self:get( key )
         return cache:get( key )
     end
 
-    function self.delete( key )
+    function self:delete( key )
         return cache:delete( key )
     end
 
-    function self.incr( key, by )
+    function self:incr( key, by )
         -- incr only works if already initialized, boo
         local newval, err = cache:incr(key, by)
 
@@ -37,14 +37,13 @@ function dictCache.new( dictName, secs )
         return newval
     end
 
-    function self.flush_all()
+    function self:flush_all()
         cache:flush_all()
     end
 
-    function self.flush_expired()
+    function self:flush_expired()
         cache:flush_expired()
     end
-
     return self
 
 end
