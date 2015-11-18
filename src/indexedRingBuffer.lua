@@ -75,10 +75,10 @@ function indexedRingBuffer.new( params )
     end
 
     function self.ejectItem( itemPos, doDel )
-        local item = self.makeReadableParams(self.cache:get(itemPos))
+        local item = self.cache:get(itemPos)
         local splitVal = splitString(item, ID_SEP)
         if self.ejectFunction then
-           self.ejectFunction(splitVal[1], splitVal[2], true)
+            self.ejectFunction(splitVal[1], self.makeReadableParams(splitVal[2]), true)
         end
 
         if doDel then
