@@ -17,24 +17,24 @@ function indexedRingBuffer.new( params )
     end
 
     local self = {
-                    cache = shared.new("ringBuffer"),
-                    cacheIndex = shared.new("ringBufferIndex"),
-                    sizeStats = shared.new("sizeStats"),
-                    autoResize = params.autoResize or false,
-                    desiredEjectMins = params.desiredEjectMins or 15,
-                    autoMinSize = params.autoMinSize or 10000,
-                    autoMaxSize = params.autoMaxSize or 10000000,
-                    monitorPeriodMins = params.monitorPeriodMins or 10,
-                    triggerAdjustPercent = params.triggerAdjustPercent or 20,
-                    maxAdjustPercentUp = params.maxAdjustPercent or 25,
-                    maxAdjustPercentDown = params.maxAdjustPercent or 10,
-                    paramList = params.paramList,
-                    storageMap = {},
-                    storageInitString = '{}',
-                    ngxEjectUpstream = params.ngxEjectUpstream or "/ejectItem_upstream",
-                    drainParallelItems = params.drainParallelItems or 100,
-                    ejectFunction = params.ejectFunction
-                }
+        cache = shared.new("ringBuffer"),
+        cacheIndex = shared.new("ringBufferIndex"),
+        sizeStats = shared.new("sizeStats"),
+        autoResize = params.autoResize or false,
+        desiredEjectMins = params.desiredEjectMins or 15,
+        autoMinSize = params.autoMinSize or 10000,
+        autoMaxSize = params.autoMaxSize or 10000000,
+        monitorPeriodMins = params.monitorPeriodMins or 10,
+        triggerAdjustPercent = params.triggerAdjustPercent or 20,
+        maxAdjustPercentUp = params.maxAdjustPercent or 25,
+        maxAdjustPercentDown = params.maxAdjustPercent or 10,
+        paramList = params.paramList,
+        storageMap = {},
+        storageInitString = '{}',
+        ngxEjectUpstream = params.ngxEjectUpstream or "/ejectItem_upstream",
+        drainParallelItems = params.drainParallelItems or 100,
+        ejectFunction = params.ejectFunction
+    }
 
     function self.drain()
         -- only one drain can occur at a given time
@@ -78,7 +78,7 @@ function indexedRingBuffer.new( params )
         local item = self.cache:get(itemPos)
         local splitVal = splitString(item, ID_SEP)
         if self.ejectFunction then
-           self.ejectFunction(splitVal[1], splitVal[2], true)
+            self.ejectFunction(splitVal[1], self.makeReadableParams(splitVal[2]), true)
         end
 
         if doDel then
@@ -189,7 +189,7 @@ function indexedRingBuffer.new( params )
             self.cacheIndex:set( id, currentItemPos )
         end
 
-        --ngx.log( ngx.DEBUG, "Will set " .. id .. " at " .. currentItemPos )
+        ngx.log( ngx.DEBUG, "Will set " .. id .. " at " .. currentItemPos )
 
         local newVal = self.mergeValWithParams(id, currentVal, params)
         local success, err = self.cache:set( currentItemPos, newVal )
@@ -221,6 +221,16 @@ function indexedRingBuffer.new( params )
             end
          end
         return id .. ID_SEP .. cjson.encode( current )
+    end
+
+    function self.makeReadableParams(params)
+        local t = {}
+        for name, val in pairs(self.storageMap) do
+            if params[val] then
+                t[name] = params[val]
+            end 
+        end
+        return t
     end
 
     function self.initStorage( paramList )
@@ -326,6 +336,19 @@ function indexedRingBuffer.new( params )
         end
 
         self.sizeStats:incr( "totalReqCount", 1 )
+    end
+
+    function self.get(id)
+        local offset = self.cacheIndex:get(id)
+        if not offset then
+            return nil
+        end
+        
+        local docWithKey = self.cache:get(offset)
+        if docWithKey then
+            local doc = cjson.decode(splitString(docWithKey, ID_SEP)[2])
+            return cjson.encode(self.makeReadableParams(doc))
+        end
     end
 
     -- initialize size
