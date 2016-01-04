@@ -78,7 +78,7 @@ function indexedRingBuffer.new( params )
         local item = self.cache:get(itemPos)
         local splitVal = splitString(item, ID_SEP)
         if self.ejectFunction then
-            self.ejectFunction(splitVal[1], self.makeReadableParams(splitVal[2]), true)
+            self.ejectFunction(splitVal[1], self.makeReadableParams(cjson.decode(splitVal[2])), true)
         end
 
         if doDel then
@@ -179,7 +179,7 @@ function indexedRingBuffer.new( params )
 
                 if self.ejectFunction then
                     --ngx.log( ngx.DEBUG, "Will eject " .. spVal[1] )
-                    self.ejectFunction( spVal[1], spVal[2], false )
+                    self.ejectFunction( spVal[1], self.makeReadableParams(cjson.decode(spVal[2])), false )
                 end
 
                 self.cacheIndex:delete( spVal[1] )
